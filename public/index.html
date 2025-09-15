@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+</head>
+<body>
+  <h1>Chat general</h1>
+
+  <!-- Registro -->
+  <input type="text" id="nombre" placeholder="Tu nombre"/>
+  <button onclick="registrar()">Registrar</button>
+  <br><br>
+
+  <!-- Chat -->
+  <input type="text" id="message" placeholder="Escribe tu mensaje"/>
+  <button onclick="enviarmensaje()">Enviar</button>
+
+  <div id="chat"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let registrado = false;
+
+    function registrar() {
+      const nombre = document.getElementById("nombre").value;
+      if(nombre.trim() !== ""){
+        socket.emit("registrar_usuario", nombre);
+        registrado = true;
+      }
+    }
+
+    socket.on("mensaje", (msg) => {
+      const div = document.getElementById("chat");
+      const p = document.createElement("p");
+      p.textContent = msg;
+      div.appendChild(p);
+    });
+
+    function enviarmensaje(){
+      if(!registrado){
+        alert("Primero regístrate con un nombre");
+        return;
+      }
+      const mensaje = document.getElementById("message").value;
+      socket.emit("mensaje", mensaje);
+    }
+  </script>
+</body>
+</html>
