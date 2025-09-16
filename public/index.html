@@ -3,34 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat en tiempo real con Animaciones</title>
+<title>Chat en tiempo real</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!-- Fondo animado -->
 <div class="background-animation">
   <div class="shape shape-1"></div>
   <div class="shape shape-2"></div>
   <div class="shape shape-3"></div>
+  <div class="shape shape-4"></div>
+  <div class="shape shape-5"></div>
 </div>
 
 <h1>Chat en tiempo real</h1>
 
-<!-- Registro -->
 <div id="login">
   <input type="text" id="nombre" placeholder="Tu nombre">
-  <button onclick="registrar()">Registrar</button>
+  <button id="btn-registrar">Ingresar</button>
 </div>
 
-<!-- Chats -->
 <div id="chat-section" style="display:none;">
   <div class="chat-container general">
     <h2>Chat general</h2>
     <div id="chat"></div>
     <input type="text" id="message" placeholder="Escribe tu mensaje">
-    <button onclick="enviarmensaje()">Enviar</button>
+    <button id="btn-enviar-general">Enviar</button>
   </div>
 
   <div class="chat-container privado">
@@ -40,85 +38,91 @@
       <option value="">--Selecciona un usuario--</option>
     </select>
     <input type="text" id="privateMessage" placeholder="Mensaje privado">
-    <button onclick="enviarPrivado()">Enviar privado</button>
+    <button id="btn-enviar-privado">Enviar privado</button>
   </div>
 </div>
 
+<!-- Conectar al servidor de Render -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket = io();
-let registrado = false;
-let miNombre = "";
+  // Cambia esto por tu dominio Render
+  const socket = io("https://chat-socket-io-g9i6.onrender.com");
 
-function registrar() {
-  const nombre = document.getElementById("nombre").value.trim();
-  if(nombre !== ""){
+  let registrado = false;
+  let miNombre = "";
+
+  const inputNombre = document.getElementById("nombre");
+  const btnRegistrar = document.getElementById("btn-registrar");
+  const btnEnviarGeneral = document.getElementById("btn-enviar-general");
+  const btnEnviarPrivado = document.getElementById("btn-enviar-privado");
+
+  btnRegistrar.addEventListener("click", registrar);
+  inputNombre.addEventListener("keydown", e => { if(e.key === "Enter") registrar(); });
+
+  function registrar() {
+    const nombre = inputNombre.value.trim();
+    if(nombre === "") return;
     socket.emit("registrar_usuario", nombre);
     registrado = true;
     miNombre = nombre;
     document.getElementById("login").style.display = "none";
     document.getElementById("chat-section").style.display = "flex";
   }
-}
 
-function enviarmensaje(){
-  if(!registrado) return alert("Primero regístrate");
-  const input = document.getElementById("message");
-  const msg = input.value.trim();
-  if(msg === "") return;
-  socket.emit("mensaje", msg);
-  input.value = "";
-}
+  btnEnviarGeneral.addEventListener("click", enviarmensaje);
+  btnEnviarPrivado.addEventListener("click", enviarPrivado);
 
-function enviarPrivado(){
-  if(!registrado) return alert("Primero regístrate");
-  const para = document.getElementById("destinatario").value;
-  const msg = document.getElementById("privateMessage").value.trim();
-  if(para && msg){
-    socket.emit("mensaje_privado", {para, mensaje: msg});
-    document.getElementById("privateMessage").value = "";
+  document.getElementById("message").addEventListener("keydown", e => { if(e.key === "Enter") enviarmensaje(); });
+  document.getElementById("privateMessage").addEventListener("keydown", e => { if(e.key === "Enter") enviarPrivado(); });
+
+  function enviarmensaje() {
+    if(!registrado) return alert("Primero regístrate");
+    const input = document.getElementById("message");
+    const msg = input.value.trim();
+    if(msg === "") return;
+    socket.emit("mensaje", msg);
+    input.value = "";
   }
-}
 
-document.getElementById("nombre").addEventListener("keydown", e => {
-  if(e.key === "Enter") registrar();
-});
-document.getElementById("message").addEventListener("keydown", e => {
-  if(e.key === "Enter") enviarmensaje();
-});
-document.getElementById("privateMessage").addEventListener("keydown", e => {
-  if(e.key === "Enter") enviarPrivado();
-});
-
-socket.on("mensaje", msg => {
-  const div = document.getElementById("chat");
-  const p = document.createElement("div");
-  p.textContent = msg;
-  p.classList.add("general-message");
-  div.appendChild(p);
-  div.scrollTop = div.scrollHeight;
-});
-
-socket.on("mensaje_privado", data => {
-  const div = document.getElementById("privateChat");
-  const p = document.createElement("div");
-  if(data.de === miNombre){
-    p.textContent = `Para ${data.para}: ${data.mensaje}`;
-  } else {
-    p.textContent = `${data.de}: ${data.mensaje}`;
+  function enviarPrivado() {
+    if(!registrado) return alert("Primero regístrate");
+    const para = document.getElementById("destinatario").value;
+    const msg = document.getElementById("privateMessage").value.trim();
+    if(para && msg){
+      socket.emit("mensaje_privado", {para, mensaje: msg});
+      document.getElementById("privateMessage").value = "";
+    }
   }
-  p.classList.add("private-message");
-  div.appendChild(p);
-  div.scrollTop = div.scrollHeight;
-});
 
-socket.on("lista_usuarios", usuarios => {
-  const select = document.getElementById("destinatario");
-  select.innerHTML = '<option value="">--Selecciona un usuario--</option>';
-  usuarios.forEach(u => {
-    if(u !== miNombre) select.innerHTML += `<option value="${u}">${u}</option>`;
+  socket.on("mensaje", msg => {
+    const div = document.getElementById("chat");
+    const p = document.createElement("div");
+    p.textContent = msg;
+    p.classList.add("general-message");
+    div.appendChild(p);
+    div.scrollTop = div.scrollHeight;
   });
-});
+
+  socket.on("mensaje_privado", data => {
+    const div = document.getElementById("privateChat");
+    const p = document.createElement("div");
+    if(data.de === miNombre){
+      p.textContent = `Para ${data.para}: ${data.mensaje}`;
+    } else {
+      p.textContent = `${data.de}: ${data.mensaje}`;
+    }
+    p.classList.add("private-message");
+    div.appendChild(p);
+    div.scrollTop = div.scrollHeight;
+  });
+
+  socket.on("lista_usuarios", usuarios => {
+    const select = document.getElementById("destinatario");
+    select.innerHTML = '<option value="">--Selecciona un usuario--</option>';
+    usuarios.forEach(u => {
+      if(u !== miNombre) select.innerHTML += `<option value="${u}">${u}</option>`;
+    });
+  });
 </script>
 </body>
 </html>
