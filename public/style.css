@@ -1,0 +1,162 @@
+/* ===== Variables CSS ===== */
+:root {
+  --primary-gradient: linear-gradient(135deg, #7b2ff7, #00d4ff);
+  --button-gradient: linear-gradient(45deg, #ff6ec7, #00d4ff);
+  --general-accent: #ff6ec7;
+  --private-accent: #00d4ff;
+  --background-color: rgba(10, 10, 30, 0.15);
+  --chat-bg: rgba(255, 255, 255, 0.1);
+  --text-color: #fff;
+  --border-radius: 20px;
+  --blur-effect: blur(15px);
+  --shadow: 0 20px 40px rgba(123, 47, 247, 0.4), 0 0 20px rgba(0, 212, 255, 0.3);
+  --transition: all 0.3s ease;
+  --font-neon: 'Poppins', sans-serif;
+}
+
+/* ===== Reset ===== */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  width:100%;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  font-family: var(--font-neon);
+  color: var(--text-color);
+  background: var(--primary-gradient);
+  overflow-x:hidden;
+}
+
+/* ===== Títulos ===== */
+h1,h2{
+  text-align:center;
+  font-weight:700;
+  text-shadow:0 0 5px #fff,0 0 10px #ff6ec7,0 0 15px #00d4ff;
+}
+h1{font-size:2.8rem;margin-bottom:20px;}
+h2{font-size:1.8rem;margin-bottom:15px;}
+
+/* ===== Fondo animado ===== */
+.background-animation{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;overflow:hidden;
+}
+.background-animation::before{
+  content:'';
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background: linear-gradient(45deg,#7b2ff7,#00d4ff,#ff6ec7,#7b2ff7);
+  background-size:400% 400%;
+  animation: gradientShift 15s ease infinite;
+  opacity:0.8;
+}
+@keyframes gradientShift{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* ===== Formas flotantes ===== */
+.shape{position:absolute;border-radius:50%;opacity:0;animation:float 15s linear infinite;}
+.shape-1{width:80px;height:80px;left:10%;background:linear-gradient(45deg,rgba(123,47,247,0.3),rgba(0,212,255,0.3));box-shadow:0 0 30px rgba(123,47,247,0.5);}
+.shape-2{width:100px;height:100px;left:70%;background:linear-gradient(45deg,rgba(255,110,199,0.3),rgba(123,47,247,0.3));box-shadow:0 0 30px rgba(255,110,199,0.5);}
+.shape-3{width:60px;height:60px;left:40%;background:linear-gradient(45deg,rgba(0,212,255,0.3),rgba(255,110,199,0.3));box-shadow:0 0 30px rgba(0,212,255,0.5);}
+@keyframes float{
+  0%{transform:translateY(100vh) scale(0.5) rotate(0deg);opacity:0;}
+  10%{opacity:0.6;}
+  50%{transform:translateY(50vh) scale(1) rotate(180deg);opacity:0.8;}
+  90%{opacity:0.4;}
+  100%{transform:translateY(-150px) scale(1.2) rotate(360deg);opacity:0;}
+}
+
+/* ===== Login ===== */
+#login{
+  width:90%;max-width:400px;
+  margin:20px auto;
+  padding:30px;
+  background: var(--background-color);
+  backdrop-filter: var(--blur-effect);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  text-align:center;
+}
+
+/* ===== Inputs y select ===== */
+input, select{
+  width:100%;
+  padding:14px 18px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color:#fff;
+  font-size:16px;
+  font-family: var(--font-neon);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+input::placeholder, select option{color: rgba(255,255,255,0.7);}
+input:focus, select:focus{
+  outline:none;
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: 0 0 15px rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.15);
+}
+
+/* ===== Botones ===== */
+button{
+  padding:14px 20px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+  font-weight:600;
+  font-family: var(--font-neon);
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  color:#fff;
+  background: linear-gradient(45deg,#ff6ec7,#7b2ff7,#00d4ff);
+  background-size:300% 300%;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(123,47,247,0.4),0 0 10px rgba(0,212,255,0.3);
+}
+button:hover{background-position:100% 0;transform:translateY(-3px) scale(1.05);box-shadow:0 10px 25px rgba(123,47,247,0.6),0 0 20px rgba(0,212,255,0.5);}
+button:active{transform:translateY(0) scale(0.98);box-shadow:0 5px 15px rgba(123,47,247,0.4),0 0 10px rgba(0,212,255,0.3);}
+button::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:rgba(255,255,255,0.15);transition:all 0.3s ease;transform:skewX(-20deg);}
+button:hover::after{left:100%;}
+
+/* ===== Chats ===== */
+#chat-section{display:flex;flex-direction:row;gap:25px;width:95%;max-width:1200px;margin-top:30px;}
+.chat-container{
+  flex:1;
+  background: var(--background-color);
+  backdrop-filter: var(--blur-effect);
+  border-radius: var(--border-radius);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  max-height:70vh;
+  min-height:500px;
+  box-shadow: var(--shadow);
+}
+#chat,#privateChat{
+  flex:1;
+  overflow-y:auto;
+  background: var(--chat-bg);
+  border-radius:15px;
+  padding:15px;
+  border:1px solid rgba(255,255,255,0.2);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  scroll-behavior:smooth;
+}
+.general-message{background:rgba(255,255,255,0.15);border-left:5px solid var(--general-accent);padding:12px;border-radius:12px;}
+.private-message{background:rgba(255,255,255,0.15);border-left:5px solid var(--private-accent);padding:12px;border-radius:12px;}
+
+/* ===== Responsive ===== */
+@media(max-width:900px){#chat-section{flex-direction:column;}.chat-container{max-height:50vh;min-height:400px;}}
+@media(max-width:600px){.chat-container{min-height:350px;}#login{width:90%;} input,select,button{font-size:14px;padding:12px;}}

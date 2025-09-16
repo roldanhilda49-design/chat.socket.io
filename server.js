@@ -16,22 +16,23 @@ app.get('/', (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log("Servidor Express escuchando en http://localhost:" + port);
+  console.log(`Servidor Express escuchando en http://localhost:${port}`);
 });
 
-// Guardamos los usuarios registrados
+// Guardamos usuarios
 let usuarios = {};
 
 io.on("connection", (socket) => {
-   console.log("un cliente se ha conectado", socket.id);
+   console.log("Un cliente conectado:", socket.id);
 
    // Registrar usuario
    socket.on("registrar_usuario", (nombre) => {
        usuarios[socket.id] = nombre;
        console.log(`Usuario registrado: ${nombre} (${socket.id})`);
 
-       // Avisar a todos que se conectó
-       io.emit("mensaje", ` ${nombre} se ha conectado`);
+       // Avisar a todos
+       io.emit("mensaje", `${nombre} se ha conectado`);
+       io.emit("lista_usuarios", Object.values(usuarios));
    });
 
    // Chat general
@@ -40,10 +41,22 @@ io.on("connection", (socket) => {
         io.emit("mensaje", `${nombre}: ${mensaje}`);
    });
 
+   // Chat privado
+   socket.on("mensaje_privado", ({para, mensaje}) => {
+        const nombre = usuarios[socket.id] || "Anónimo";
+        const idDestino = Object.keys(usuarios).find(key => usuarios[key] === para);
+
+        if(idDestino){
+            io.to(idDestino).emit("mensaje_privado", {de: nombre, mensaje});
+            socket.emit("mensaje_privado", {de: "Tú", mensaje: mensaje});
+        }
+   });
+
    // Desconexión
    socket.on("disconnect", () => {
        const nombre = usuarios[socket.id] || "Anónimo";
-       io.emit("mensaje", ` ${nombre} se ha desconectado`);
+       io.emit("mensaje", `${nombre} se ha desconectado`);
        delete usuarios[socket.id];
+       io.emit("lista_usuarios", Object.values(usuarios));
    });
 });
